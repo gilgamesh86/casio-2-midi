@@ -22,8 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "usbd_cdc_if.h"
-#include <stdio.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,10 +60,7 @@ static void MX_GPIO_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
-int _write(int file, char *ptr, int len) {
-  CDC_Transmit_FS((uint8_t *)ptr, len);
-  return len;
-}
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -132,10 +128,7 @@ int main(void) {
             prevState[i][j] = pressed;
 
             if (pressed) {
-              printf("on:  %d\r\n", currentState[i][j]);
-              // MIDI_SendNoteOn(currentState[i][j], 127);
             } else {
-              printf("off: %d\r\n", currentState[i][j]);
             }
           }
         }
