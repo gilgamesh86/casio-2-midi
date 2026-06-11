@@ -186,10 +186,10 @@ __ALIGN_BEGIN static uint8_t
 
         /*---------------------------------------------------------------------------*/
 
-        /* Interface Descriptor */
+        /* Standard AC nterface Descriptor */
+
         0x09, /* bLength: Interface Descriptor size */
         0x04, /* bDescriptorType: Interface */
-        /* Standard AC Interface descriptor type */
         0x00, /* bInterfaceNumber: Number of Interface */
         0x00, /* bAlternateSetting: Alternate setting */
         0x00, /* bNumEndpoints: no endpoint used changed here */
@@ -203,114 +203,116 @@ __ALIGN_BEGIN static uint8_t
         0x24, /* bDescriptorType: CS_INTERFACE */
         0x01, /* bDescriptorSubtype: Header Func Desc */
         0x00, /* bcdADC: spec release number */
-        0x01, /* little endian format, thanks claude */
-        0x09, /* total size of the class specific descriptors */
-        0x00, /* little endian format */
-        0x01, /* number of streaming interface */
-        0x01, /* MIDIStreaming interface 1 belongs to this AudioControl
-                 interface.*/
+        0x01, /* little endian format */
+        0x09, /* wTotalLength */
+        0x00, /* second byte */
+        0x01, /* bInCollection */
+        0x01, /* baInterfaceNr(1) */
 
         /* Standard MS Interface Descriptor */
         0x09, /* bFunctionLength */
-        0x04, /* bDescriptorType: CS_INTERFACE */
-        0x01, /* bDescriptorSubtype: Call Management Func Desc */
-        0x00, /* bmCapabilities: D0+D1 */
-        0x02, /* bDataInterface */
-        0x01, /**/
-        0x03, /**/
-        0x00, /**/
-        0x00, /**/
+        0x04, /* bDescriptorType */
+        0x01, /* bInterfaceNumber */
+        0x00, /* bAlternateSetting */
+        0x02, /* bNumEndpoints */
+        0x01, /* bInterfaceClass */
+        0x03, /* bInterfaceSubClass */
+        0x00, /* bInterfaceProtocol */
+        0x00, /* iInterface */
 
         /* Class specific MS interface descriptor */
         0x07, /* bFunctionLength */
-        0x24, /* bDescriptorType: CS_INTERFACE */
-        0x01, /* bDescriptorSubtype: Abstract Control Management desc */
-        0x00, /* bmCapabilities */
-        0x01, /**/
-        0x00, /**/
-        0x04, /**/
+        0x24, /* bDescriptorType */
+        0x01, /* bDescriptorSubtype */
+        0x00, /* bcdMSC */
+        0x01, /* second byte */
+        0x41, /* wTotalLength */
+        0x00, /* second byte */
 
         /* MIDI IN jack descriptor #1 (embedded) */
-        0x06, /* bFunctionLength */
-        0x24, /* bDescriptorType: CS_INTERFACE */
-        0x02, /* bDescriptorSubtype: Union func desc */
-        0x01, /* bMasterInterface: Communication class interface */
-        0x01, /* bSlaveInterface0: Data Class Interface */
-        0x00, /**/
+        0x06, /* bLength */
+        0x24, /* bDescriptorType */
+        0x02, /* bDescriptorSubtype */
+        0x01, /* bJackType */
+        0x01, /* bJackID */
+        0x00, /* iJack */
 
         /* MIDI IN jack descriptor #2 (external) */
-        0x06, /* bLength: Endpoint Descriptor size */
-        0x24, /* bDescriptorType: Endpoint */
-        0x02, /* bEndpointAddress */
-        0x02, /* bmAttributes: Interrupt */
-        0x02, /* wMaxPacketSize */
-        0x00, /* */
+        0x06, /* bLength */
+        0x24, /* bDescriptorType */
+        0x02, /* bDescriptorSubtype */
+        0x02, /* bJackType */
+        0x02, /* bJackID */
+        0x00, /* iJack */
 
         /* MIDI OUT jack descriptor #1 (embedded) */
-        0x09, /**/
-        0x24, /**/
-        0x03, /**/
-        0x01, /**/
-        0x03, /**/
-        0x01, /**/
-        0x02, /**/
-        0x01, /**/
-        0x00, /**/
+        0x09, /* bLength */
+        0x24, /* bDescriptorType */
+        0x03, /* bDescriptorSubtype */
+        0x01, /* bJackType */
+        0x03, /* bJackID */
+        0x01, /* bNrInputPins */
+        0x02, /* BaSourceID(1) */
+        0x01, /* BaSourcePin(1) */
+        0x00, /* iJack */
 
         /* MIDI OUT jack descriptor #2 (external) */
-        0x09, /**/
-        0x24, /**/
-        0x03, /**/
-        0x02, /**/
-        0x04, /**/
-        0x01, /**/
-        0x01, /**/
-        0x01, /**/
-        0x00, /**/
+        0x09, /* bLength */
+        0x24, /* bDescriptorType */
+        0x03, /* bDescriptorSubtype */
+        0x02, /* bJackType */
+        0x04, /* bJackID */
+        0x01, /* bNrInputPins */
+        0x01, /* BaSourceID(1) */
+        0x01, /* BaSourcePin(1) */
+        0x00, /* iJack */
 
         /* Standard Bulk OUT endpoint descriptor */
-        0x09, /**/
-        0x05, /**/
-        0x01, /**/
-        0x02, /**/
-        0x40, /**/
-        0x00, /**/
-        0x00, /**/
-        0x00, /**/
-        0x00, /**/
+        0x09, /* bLength */
+        0x05, /* bDescriptorType */
+        0x01, /* bEndpintAddress */
+        0x02, /* bmAttributes */
+        0x40, /* wMaxPacketSize */
+        0x00, /* second byte */
+        0x00, /* bInterval */
+        0x00, /* bRefresh */
+        0x00, /* bSynchAddress */
 
         /* Class specific Bulk OUT endpoint descriptor */
-        0x05, /**/
-        0x25, /**/
-        0x01, /**/
-        0x01, /**/
-        0x01, /**/
+        0x05, /* bLength */
+        0x25, /* bDescriptorType */
+        0x01, /* bDescriptorSubtype */
+        0x01, /* bNumEmbMIDIJack */
+        0x01, /* BaAssocJackID(1) */
 
         /* Standard Bulk IN endpoint descriptor */
-        0x09, /**/
-        0x05, /**/
-        0x81, /**/
-        0x02, /**/
-        0x40, /**/
-        0x00, /**/
-        0x00, /**/
-        0x00, /**/
-        0x00, /**/
+        0x09, /* bLength */
+        0x05, /* bDescriptorType */
+        0x81, /* bEndpintAddress */
+        0x02, /* bmAttributes */
+        0x40, /* wMaxPacketSize */
+        0x00, /* second byte */
+        0x00, /* bInterval */
+        0x00, /* bRefresh */
+        0x00, /* bSynchAddress */
 
         /* Class specific Bulk IN endpoint descriptor */
-        0x05, /**/
-        0x25, /**/
-        0x01, /**/
-        0x01, /**/
-        0x03, /**/
+        0x05, /* bLength */
+        0x25, /* bDescriptorType */
+        0x01, /* bDescriptorSubtype */
+        0x01, /* bNumEmbMIDIJack */
+        0x03, /* BaAssocJackID(1) */
 
 };
 #endif /* USE_USBD_COMPOSITE  */
 
+/* MAKE SURE TO CHANGE THE USB_CDC_CONFIG_DESC_SIZ TO 101 (OR WHATEVER THE SIZE
+ * OF THE DESCRIPTOR ARRAY IS) line number 69 in the usbd_cdc.h */
+
 static uint8_t CDCInEpAdd = CDC_IN_EP;
 static uint8_t CDCOutEpAdd = CDC_OUT_EP;
 static uint8_t CDCCmdEpAdd = CDC_CMD_EP;
-
+extern volatile uint8_t midiTxBusy;
 /**
  * @}
  */
@@ -580,6 +582,7 @@ static uint8_t USBD_CDC_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum) {
           ->TransmitCplt(hcdc->TxBuffer, &hcdc->TxLength, epnum);
     }
   }
+  midiTxBusy = 0;
 
   return (uint8_t)USBD_OK;
 }

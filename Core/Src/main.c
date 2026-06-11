@@ -18,10 +18,14 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_gcc.h"
 #include "usb_device.h"
+#include "usbd_core.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "usb_device.h"
+#include <string.h>
 
 /* USER CODE END Includes */
 
@@ -47,11 +51,19 @@ TIM_HandleTypeDef htim3;
 /* USER CODE BEGIN PV */
 volatile uint8_t scanFlag = 0;
 volatile uint8_t ledFlag = 0;
-uint8_t currentState[8][6] = {{1, 9, 17, 25, 33, 41},  {2, 10, 18, 26, 34, 42},
-                              {3, 11, 19, 27, 35, 43}, {4, 12, 20, 28, 36, 44},
-                              {5, 13, 21, 29, 37, 45}, {6, 14, 22, 30, 38, 46},
-                              {7, 15, 23, 31, 39, 47}, {8, 16, 24, 32, 40, 48}};
+
+uint8_t keyTable[8][6] = {{53, 61, 69, 77, 85, 93}, {54, 62, 70, 78, 86, 94},
+                          {55, 63, 71, 79, 87, 95}, {56, 64, 72, 80, 88, 96},
+                          {57, 65, 73, 81, 89, 97}, {58, 66, 74, 82, 90, 98},
+                          {59, 67, 75, 83, 91, 99}, {60, 68, 76, 84, 92, 100}};
 uint8_t prevState[8][6] = {0};
+uint8_t usbPacket[4] = {0};
+uint8_t midiQueue[32][4] = {0}; /* for circular buffer */
+volatile uint8_t qStart = 0;
+volatile uint8_t qEnd = 0;
+volatile uint8_t midiTxBusy = 0; /* used inside the usb cdc data in function in
+                                    usbd_cdc.c, extern this there */
+extern USBD_HandleTypeDef hUsbDeviceFS;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -103,24 +115,27 @@ int main(void) {
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_Base_Start_IT(&htim3);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
+    /* on board blinky for sanity check */
     if (ledFlag == 1) {
       ledFlag = 0;
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
     }
 
+    /* matrix scan + buffer filling */
     if (scanFlag == 1) {
       scanFlag = 0;
       for (uint8_t i = 0; i < 8; i++) {
         HAL_GPIO_WritePin(GPIOA, 0x00FF, 0);
         HAL_GPIO_WritePin(GPIOA, 1 << i, 1);
-        for (volatile uint32_t d = 0; d < 50; d++)
-          ;
+        /* Give time, if you skip this loop you will get ghost notes */
+        for (uint8_t d = 0; d < 50; d++) {
+          __NOP();
+        }
         for (uint8_t j = 0; j < 6; j++) {
           uint8_t pressed = HAL_GPIO_ReadPin(GPIOB, (1 << j));
 
@@ -128,17 +143,31 @@ int main(void) {
             prevState[i][j] = pressed;
 
             if (pressed) {
+              uint8_t report[4] = {0x09, 0x90, keyTable[i][j], 127};
+              memcpy(midiQueue[qEnd], report, 4);
+              qEnd = (qEnd + 1) % 32;
             } else {
+              uint8_t report[4] = {0x08, 0x80, keyTable[i][j], 00};
+              memcpy(midiQueue[qEnd], report, 4);
+              qEnd = (qEnd + 1) % 32;
             }
           }
         }
       }
-
-      /* USER CODE END WHILE */
-
-      /* USER CODE BEGIN 3 */
+    }
+    /* flushing buffer with check (ghost note without the txxflag check btw)
+     * (used LL cause cdc transmit wont work cause we changed the descriptors)
+     */
+    if (qStart != qEnd && midiTxBusy == 0) {
+      midiTxBusy = 1;
+      USBD_LL_Transmit(&hUsbDeviceFS, 0x81, midiQueue[qStart], 4);
+      qStart = (qStart + 1) % 32;
     }
   }
+  /* USER CODE END WHILE */
+
+  /* USER CODE BEGIN 3 */
+
   /* USER CODE END 3 */
 }
 
@@ -204,7 +233,7 @@ static void MX_TIM2_Init(void) {
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 95;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 999;
+  htim2.Init.Period = 1999;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
