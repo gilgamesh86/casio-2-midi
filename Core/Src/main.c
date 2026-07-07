@@ -133,7 +133,7 @@ int main(void) {
         HAL_GPIO_WritePin(GPIOA, 0x00FF, 0);
         HAL_GPIO_WritePin(GPIOA, 1 << i, 1);
         /* Give time, if you skip this loop you will get ghost notes */
-        for (uint8_t d = 0; d < 50; d++) {
+        for (uint8_t d = 0; d < 75; d++) {
           __NOP();
         }
         for (uint8_t j = 0; j < 6; j++) {

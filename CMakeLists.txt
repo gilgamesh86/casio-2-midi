@@ -44,8 +44,11 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Add sources to executable
+file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/*.c")
+list(REMOVE_ITEM APP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/system_stm32f4xx.c")
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    # Add user sources here
+    ${APP_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/startup_stm32f411xe.s
 )
 
 # Add include paths
